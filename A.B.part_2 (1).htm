@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Particles - Part 2</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: #0b0f1a;
+            overflow: hidden;
+            color: #e6eef8;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+        }
+        canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 0; }
+        .nav { position: absolute; top: 10px; left: 10px; z-index: 9999; }
+        .nav a { color: #c7b3ff; text-decoration: none; background: rgba(0,0,0,0.45); padding: 6px 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+    <div class="nav"><a href="A.B.part_1.htm" onclick="location.href='A.B.part_1.htm';">&larr; Part 1 (single particle)</a></div>
+
+    <script>
+        // Multi-particle canvas (Part 2)
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            init();
+        });
+
+        // Utility
+        function random(min, max) { return Math.random() * (max - min) + min; }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function randomColor() {
+            const palette = ['#7bdff6', '#ffd27a', '#ff7aa2', '#9ae6b4', '#c7b3ff', '#ffd6e0', '#b8f2ff'];
+            return palette[randInt(0, palette.length - 1)];
+        }
+
+        class Particle {
+            constructor(x, y, r, color, dx, dy) {
+                this.x = x; this.y = y;
+                this.r = r; this.color = color;
+                this.dx = dx; this.dy = dy;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+            update() {
+                if (this.x + this.r >= canvas.width || this.x - this.r <= 0) this.dx = -this.dx;
+                if (this.y + this.r >= canvas.height || this.y - this.r <= 0) this.dy = -this.dy;
+                this.x += this.dx; this.y += this.dy;
+                this.draw();
+            }
+        }
+
+        let particles = [];
+
+        function init(count = 100) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                const r = random(5, 15);
+                const x = random(r, canvas.width - r);
+                const y = random(r, canvas.height - r);
+                const dx = random(-2.5, 2.5);
+                const dy = random(-2.5, 2.5);
+                const color = randomColor();
+                particles.push(new Particle(x, y, r, color, dx, dy));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const p of particles) p.update();
+            requestAnimationFrame(animate);
+        }
+
+        // Start
+        init(100);
+        animate();
+    </script>
+</body>
+</html>

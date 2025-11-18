@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Particle Animation</title>
+    <style>
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            background: #0b0f1a;
+            overflow: hidden; 
+        }
+        canvas { 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        .nav { position: absolute; top: 10px; left: 10px; z-index: 9999; }
+        .nav a { color: #c7b3ff; text-decoration: none; background: rgba(0,0,0,0.45); padding: 6px 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+    <div class="nav"><a href="A.B.part_2.htm" onclick="location.href='A.B.part_2.htm';">Part 2 (many particles) →</a></div>
+
+    <script>
+        // Canvas Setup
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+
+        // Event Listeners
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            init(); // re-init particle for new size
+        });
+
+        // Particle Class
+        class Particle {
+            constructor(x, y, radius, color, dx, dy) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.dx = dx;
+                this.dy = dy;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            update() {
+                // Edge detection and bouncing
+                if (this.x + this.radius >= canvas.width || this.x - this.radius <= 0) {
+                    this.dx = -this.dx;
+                }
+                if (this.y + this.radius >= canvas.height || this.y - this.radius <= 0) {
+                    this.dy = -this.dy;
+                }
+
+                // Update position
+                this.x += this.dx;
+                this.y += this.dy;
+
+                // Draw at new position
+                this.draw();
+            }
+        }
+
+        // Initialize particle
+        let particle;
+
+        function init() {
+            // Create a single particle starting in the middle of the screen
+            const x = canvas.width / 2;
+            const y = canvas.height / 2;
+            const radius = 20;
+            const color = '#7bdff6';
+            const dx = 4; // horizontal speed
+            const dy = 3; // vertical speed
+            
+            particle = new Particle(x, y, radius, color, dx, dy);
+        }
+
+        // Animation Loop
+        function animate() {
+            // Clear the entire canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw particle
+            particle.update();
+
+            // Continue animation
+            requestAnimationFrame(animate);
+        }
+
+        // Start the animation
+        init();
+        animate();
+
+    </script>
+</body>
+</html>
